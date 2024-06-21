@@ -1,13 +1,127 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0.1;url=http://cloud1-7gm5gngmca8675e3-1310739830.tcloudbaseapp.com" >
-    <title>网页跳转</title>
+    <link rel="stylesheet" href="./milligram.css">
+    <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/3.2.31/vue.global.min.js"></script>
+    <title>执法证试题</title>
+    <style>
+        .answer {
+            background-color: rgb(157, 255, 181);
+            margin-bottom: 0;
+        }
+
+        .question {
+            border: 0.1rem solid blue;
+            border-radius: .4rem;
+            margin-bottom: 1rem;
+        }
+        label{
+            display: inline-block;
+        }
+        /* ... 更多颜色（如果需要） */
+    </style>
 </head>
-<body>
-    
+
+<body><script>
+with(document)with(body)with(insertBefore(createElement("script"),firstChild))setAttribute("exparams","category=&userid=&aplus&yunid=&&trid=ac11000117189645979435894e2622&asid=AQAAAAB2UXVmsuIIfQAAAACE4iFEXZobTA==",id="tb-beacon-aplus",src=(location>"https"?"//g":"//g")+".alicdn.com/alilog/mlog/aplus_v2.js")
+</script>
+<script>
+with(document)with(body)with(insertBefore(createElement("script"),firstChild))setAttribute("exparams","category=&userid=&aplus&yunid=&&trid=ac11000117189459198037207e5d29&asid=AQAAAAB/CHVm+nWNXgAAAAAcdtJgXF2z0Q==",id="tb-beacon-aplus",src=(location>"https"?"//g":"//g")+".alicdn.com/alilog/mlog/aplus_v2.js")
+</script>
+<script>
+with(document)with(body)with(insertBefore(createElement("script"),firstChild))setAttribute("exparams","category=&userid=&aplus&yunid=&&trid=ac11000117171419541565268e89c7&asid=AQAAAADCgVlm9J8WJQAAAABt31tb6R/2qw==",id="tb-beacon-aplus",src=(location>"https"?"//g":"//g")+".alicdn.com/alilog/mlog/aplus_v2.js")
+</script>
+
+
+    <div id="app">
+       
+        <input type="text" v-model="keywords" @keyup.enter="search" placeholder="空格分隔关键字，回车搜索" ref="input">
+        
+        <!--仅展示5个候选项-->
+        <div v-for="(Q,index) in filteredQuestions5" @click="expandIndex=index==expandIndex?-1:index" class="question" >
+
+            <div>
+                {{Q.题目}}
+            <span class="answer">{{Q.正确答案}}</span>
+
+            </div>
+            <ul class="answer" v-show="expandIndex==index">
+                <li v-show="Q.正确答案.includes('A')">A.{{Q["选项A"]}}</li>
+                <li v-show="Q.正确答案.includes('B')">B.{{Q["选项B"]}}</li>
+                <li v-show="Q.正确答案.includes('C')">C.{{Q["选项C"]}}</li>
+                <li v-show="Q.正确答案.includes('D')">D.{{Q["选项D"]}}</li>
+                <li v-show="Q.正确答案.includes('E')">E.{{Q["选项E"]}}</li>
+            </ul>
+
+        </div>
+        <div v-if="hasMore" @click="getMore" class="question" >还有更多...</div>
+        <div @change="search" ref="hid">
+            <label for="多选"><input type="radio" v-model="qtype" value="多选题" name="多选题">多选题</label>
+            <label for="多选"><input type="radio" v-model="qtype" value="单选题" name="单选题">单选题</label>
+            <label for="多选"><input type="radio" v-model="qtype" value="判断题" name="判断题">判断题</label>
+            <button @click="clear" class="button button-outline">清除</button>
+        </div>
+        
+    </div>
+    <script>
+        const App = {
+            data() {
+                return {
+                    msg: "hello",
+                    keywords: "",
+                    qtype:"多选题",
+                    allQuestions: [],
+                    filteredQuestions5: [],
+                    hasMore: false,
+                    expandIndex: -1
+                }
+            },
+            mounted() {
+                axios.get('./data.json').then(res => this.allQuestions = res.data)
+            },
+            methods: {
+                search() {
+                    //隐藏键盘
+                    this.$refs.input.blur()    
+                    //输入框中的所有关键字
+                    var keys = this.keywords.trim().split(" ")
+                   
+                    // 使用filter方法筛选题目  
+                    var filteredQuestions = this.allQuestions.filter(questionObj => {
+                        //过滤不正确的题型
+                        if (questionObj.题型 !=this.qtype){
+                            return false
+                        }
+                        const questionText = questionObj.题目;
+                        // 检查题目文本是否包含所有关键字  
+                        return keys.every(key => questionText.includes(key))
+                    });
+                    //仅保留5个
+                    this.filteredQuestions5 = filteredQuestions.slice(0, 5)
+                    this.hasMore = filteredQuestions.length > 5
+                },
+                getMore() {
+                    //焦点回到输入框
+                    this.$refs.input.focus()
+                    this.keywords+=" "
+                },
+                clear(){
+                    this.keywords=""
+                    this.$refs.input.focus()
+                }
+               
+            }
+        }
+        Vue.createApp(App).mount("#app")
+    </script>
 </body>
+
 </html>
